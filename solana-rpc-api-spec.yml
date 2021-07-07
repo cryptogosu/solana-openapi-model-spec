@@ -1,0 +1,812 @@
+swagger: "2.0"
+info:
+  description: "This "
+  version: "v1.8"
+  title: "Solana JSONRPC Models"
+  contact:
+    email: "contact@cryptogosu.com"
+  license:
+    name: "MIT License"
+    url: "http://www.github.com/cryptogosu/solana-jsonrpc-openapi-models"
+host: "api.mainnet-beta.solana.com"
+schemes:
+- "https"
+- "http"
+paths:
+  /:
+    post:
+      summary: "Interact with JSONRPC"
+      description: "Used to interact with JSONRPC"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "JSONRpcRequest for Solana"
+        required: true
+        schema:
+          $ref: "#/definitions/JsonRPCRequest"
+      responses:
+        "200":
+          description: "Valid Response"
+definitions:
+  JsonRPCRequest:
+    type: "object"
+    properties:
+      jsonrpc: 
+        type: "string"
+      id:
+        type: "integer"
+      method:
+        type: "string"
+      params:
+        type: "array"
+        items:
+          type: "object"
+  JsonRPCResponse:
+    type: "object"
+    properties:
+      jsonrpc:
+        type: "string"
+      id:
+        type: "integer"
+      result:
+        type: "object"
+      error:
+        type: "object"
+        $ref: '#/definitions/JsonRPCError'
+  JsonRPCError:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int64"
+      message:
+        type: "string"
+      data:
+        type: "object"
+  RPCResult:
+    type: "object"
+    properties:
+      context:
+        type: "object"
+        $ref: '#/definitions/RPCContext'
+      value:
+        type: "object"
+  RPCContext:
+    type: "object"
+    properties:
+      slot:
+        type: "integer"
+        format: "int64"
+  DataSlice:
+    type: "object"
+    properties:
+      offset:
+        type: "integer"
+      length:
+        type: "integer"
+  Commitment:
+    type: "string"
+    enum: [finalized,confirmed,processed]
+  AccountConfiguration:
+    type: "object"
+    properties:
+      commitment:
+        type: "string"
+        $ref: "#/definitions/Commitment"
+      encoding:
+        type: "string"
+        enum: [base58,base64,base64+zstd]
+      dataSlice:
+        type: "object"
+        $ref: "#/definitions/DataSlice"
+  AccountInfo:
+    type: "object"
+    properties: 
+      value:
+        type: "object"
+      data:
+        type: "array"
+        items:
+          type: "string"
+      executable:
+        type: "boolean"
+      lamports:
+        type: "integer"
+        format: "int64"
+      owner:
+        type: "string"
+      rentEpoch:
+        type: "integer"
+        format: "int64"
+  BlockRequest:
+    type: "object"
+    properties:
+      encoding:
+        type: "string"
+        enum: [json,jsonParsed,base58,base64]
+        default: "json"
+      transactionDetails:
+        type: "string"
+        enum: [full,signatures,none]
+        default: "full"
+      rewards:
+        type: "boolean"
+        default: "true"
+      commitment:
+        type: "object"
+        $ref: '#/definitions/Commitment'
+  BlockResponse:
+    type: "object"
+    properties:
+      blockhash:
+        type: "string"
+      previousBlockhash:
+        type: "string"
+      parentSlot:
+        type: "integer"
+        format: "int64"
+      transactions:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/TransactionResponse'
+      signatures:
+        type: "array"
+        items:
+          type: "string"
+      rewards:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/Reward'
+      blockTime:
+        type: "integer"
+        format: "int64"
+      blockHeight:
+        type: "integer"
+        format: "int64"
+  Reward:
+    type: "object"
+    properties:
+      pubkey: 
+        type: "string"
+      lamports:
+        type: "integer"
+        format: "int64"
+      postBalance:
+        type: "integer"
+        format: "int64"
+      rewardType:
+        type: "string"
+        enum: [fee,rent,voting,staking]
+  TransactionResponse:
+    type: "object"
+    properties:
+      slot:
+        type: "integer"
+        format: "int64"
+      transaction:
+        type: "object"
+        $ref: '#/definitions/Transaction'
+      blockTime:
+        type: "integer"
+        format: "int64"
+      meta:
+        type: "object"
+        $ref: '#/definitions/TransactionMetadata'
+  TransactionMetadata:
+    type: "object"
+    properties:
+      err:
+        type: "object"
+        $ref: '#/definitions/TransactionError'
+      fee:
+        type: "integer"
+        format: "int64"
+      preBalances:
+        type: "array"
+        items:
+          type: "integer"
+          format: "int64"
+      postBalances:
+        type: "array"
+        items:
+          type: "integer"
+          format: "int64"
+      innerInstructions:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/InnerInstruction'
+      preTokenBalances:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/TokenBalance'
+      postTokenBalances:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/TokenBalance'
+      logMessages:
+        type: "array"
+        items:
+          type: "string"
+      status:
+        type: "object"
+        $ref: '#/definitions/TransactionStatus'
+  TokenBalance:
+    type: "object"
+    properties:
+      accountIndex:
+        type: "integer"
+      mint:
+        type: "string"
+      uiTokenAmount:
+        type: "object"
+        $ref: '#/definitions/Token'
+  Token:
+    type: "object"
+    properties:
+      address:
+        type: "string"
+      amount:
+        type: "string"
+      decimals:
+        type: "integer"
+      uiAmount:
+        type: "integer"
+      uiAmountString:
+        type: "string"
+  InnerInstruction:
+    type: "object"
+    properties:
+      index:
+        type: "integer"
+      instructions:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/Instruction'
+  Instruction:
+    type: "object"
+    properties:
+      programIdIndex:
+        type: "integer"
+      accounts:
+        type: "array"
+        items:
+          type: "integer"
+      data:
+        type: "string"
+  TransactionStatus:
+    type: "object"
+    properties:
+      ok:
+        type: "object"
+      err:
+        type: "object"
+        $ref: '#/definitions/TransactionError'
+  TransactionError:
+    type: "object"
+    properties:
+      InstructionError:
+        type: "array"
+        items:
+          type: "object"
+  Transaction:
+    type: "object"
+    properties:
+      signatures:
+        type: "array"
+        items:
+          type: "string"
+      message:
+        type: "object"
+        $ref: '#/definitions/TransactionMessage'
+  TransactionMessage:
+    type: "object"
+    properties:
+      accountKeys:
+        type: "array"
+        items:
+          type: "string"
+      header:
+        type: "object"
+        $ref: '#/definitions/TransactionHeader'
+      recentBlockhash:
+        type: "string"
+      instructions:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/TransactionInstruction'
+  TransactionHeader:
+    type: "object"
+    properties: 
+      numRequiredSignatures:
+        type: "integer"
+      numReadonlySignedAccounts:
+        type: "integer"
+      numReadonlyUnsignedAccounts:
+        type: "integer"
+  TransactionInstruction:
+    type: "object"
+    properties:
+      programIdIndex:
+        type: "integer"
+      accounts:
+        type: "array"
+        items:
+          type: "integer"
+      data:
+        type: "string"    
+  BlockProductionRequest:
+    type: "object"
+    properties: 
+      commitment:
+        type: "object"
+        $ref: '#/definitions/Commitment'
+      range:
+        type: "object"
+        $ref: '#/definitions/BlockProductionRange'
+      identity:
+        type: "string"
+  BlockProductionRange:
+    type: "object"
+    properties:
+      firstSlot:
+        type: "integer"
+        format: "int64"
+      lastSlot:
+        type: "integer"
+        format: "int64"
+  BlockProductionResponse:
+    type: "object"
+    properties:
+      byIdentity:
+        type: "object"
+        additionalProperties: 
+          type: "array"
+          items:
+            type: "integer"
+            format: "int64"
+      range:
+        type: "object"
+        $ref: '#/definitions/BlockProductionRange'
+  BlockCommitment:
+    type: "object"
+    properties:
+      commitment:
+        type: "array"
+        items:
+          type: "integer"
+          format: "int64"
+      totalStake:
+        type: "integer"
+        format: "int64"
+  CusteredNodes:
+    type: "object"
+    properties:
+      pubkey:
+        type: "string"
+      gossip:
+        type: "string"
+      tpu:
+        type: "string"
+      rpc:
+        type: "string"
+      version:
+        type: "string"
+      featureSet:
+        type: "integer"
+      shredVersion:
+        type: "integer"
+  EpochInfo:
+    type: "object"
+    properties:
+      absoluteSlot:
+        type: "integer"
+        format: "int64"
+      blockHeight:
+        type: "integer"
+        format: "int64"
+      epoch:
+        type: "integer"
+        format: "int64"
+      slotIndex:
+        type: "integer"
+        format: "int64"
+      slotsInEpoch:
+        type: "integer"
+        format: "int64"
+  EpochSchedule:
+    type: "object"
+    properties:
+      slotsPerEpoch:
+        type: "integer"
+        format: "int64"
+      leaderScheduleSlotOffset:
+        type: "integer"
+        format: "int64"
+      warmup:
+        type: "boolean"
+      firstNormalEpoch:
+        type: "integer"
+        format: "int64"
+      firstNormalSlot:
+        type: "integer"
+        format: "int64"
+  FeeCalculator:
+    type: "object"
+    properties:
+      lamportsPerSignature:
+        type: "integer"
+        format: "int64"
+  FeeRateGovernor:
+    type: "object"
+    properties:
+      burnPercent:
+        type: "integer"
+        format: "int64"
+      maxLamportsPerSignature:
+        type: "integer"
+        format: "int64"
+      minLamportsPerSignature:
+        type: "integer"
+        format: "int64"
+      targetLamportsPerSignature:
+        type: "integer"
+        format: "int64"
+      targetSignaturesPerSlot:
+        type: "integer"
+        format: "int64"
+  Fees:
+    type: "object"
+    properties:
+      blockhash:
+        type: "string"
+      feeCalculator:
+        type: "object"
+        $ref: '#/definitions/FeeCalculator'
+      lastValidSlot:
+        type: "integer"
+        format: "int64"
+      lastValidBlockHeight:
+        type: "integer"
+        format: "int64"
+  IdentityResponse:
+    type: "object"
+    properties:
+      identity:
+        type: "string"
+  InflationGovernor:
+    type: "object"
+    properties:
+      initial:
+        type: "number"
+        format: "double"
+      terminal:
+        type: "number"
+        format: "double"
+      taper:
+        type: "number"
+        format: "double"
+      foundation:
+        type: "number"
+        format: "double"
+      foundationTerm:
+        type: "number"
+        format: "double"
+  InflationRate:
+    type: "object"
+    properties:
+      total:
+        type: "number"
+        format: "double"
+      validator:
+        type: "number"
+        format: "double"
+      foundation:
+        type: "number"
+        format: "double"
+      epoch:
+        type: "number"
+        format: "double"
+  InflationRewardRequest:
+    type: "object"
+    properties:
+      commitment: 
+        type: "object"
+        format: '$/definitions/Commitment'
+      epoch:
+        type: "integer"
+        format: "int64"
+  InflationReward:
+    type: "object"
+    properties:
+      epoch:
+        type: "number"
+        format: "double"
+      effectiveSlot:
+        type: "number"
+        format: "double"
+      amount:
+        type: "number"
+        format: "double"
+      postBalance:
+        type: "number"
+        format: "double"
+  LargestAccountRequest:
+    type: "object"
+    properties:
+      filter:
+        type: "string"
+        enum: [circulating,nonCirculating]
+  LargeAccount:
+    type: "object"
+    properties:
+      address:
+        type: "string"
+      lamports:
+        type: "integer"
+        format: "int64"
+  LeaderScheduleRequest:
+    type: "object"
+    properties:
+      identity:
+        type: "string"
+  LeaderSchedule:
+    type: "object"
+    additionalProperties: 
+      type: "array"
+      items:
+        type: "integer"
+        format: "int64"
+  GetMultipleAccountsRequest:
+    type: "object"
+    properties:
+      encoding:
+        type: "string"
+        enum: [base58,base64,jsonParsed,base64+zstd"]
+        default: jsonParsed
+      dataSlice:
+        type: "object"
+        $ref: '#/definitions/DataSlice'
+      length:
+        type: "integer"
+        format: "int64"
+  Filter:
+    type: "object"
+    properties:
+      memcmp:
+        type: "object"
+        properties: 
+          offset:
+            type: "integer"
+            format: "int64"
+          bytes:
+            type: "string"
+      dataSize:
+        type: "integer"
+        format: "int64"
+  GetProgramAccountsRequest:
+    type: "object"
+    properties:
+      encoding:
+        type: "string"
+        enum: [base58,base64,jsonParsed,base64+zstd"]
+        default: jsonParsed
+      dataSlice:
+        type: "object"
+        $ref: '#/definitions/DataSlice'
+      length:
+        type: "integer"
+        format: "int64"
+      filters:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/Filter'
+      withContext:
+        type: "boolean"
+  Account:
+    type: "object"
+    properties:
+      pubkey:
+        type: "string"
+      account:
+        type: "object"
+        $ref: '#/definitions/AccountInfo'
+  RecentBlockHash:
+    type: "object"
+    properties:
+      blockhash:
+        type: "string"
+      feeCalculator:
+        type: "object"
+        $ref: '#/definitions/FeeCalculator'
+  RecentPerformanceSample:
+    type: "object"
+    properties:
+      slot:
+        type: "integer"
+        format: "int64"
+      numTransactions:
+        type: "integer"
+        format: "int64"
+      numSlots:
+        type: "integer"
+        format: "int64"
+      samplePeriodSecs:
+        type: "integer"
+  GetSignaturesForAddressRequest:
+    type: "object"
+    properties:
+      limit:
+        type: "number"
+      before:
+        type: "string"
+      until:
+        type: "string"
+  SignatureForAddress:
+    type: "object"
+    properties:
+      signature:
+        type: "string"
+      slot:
+        type: "integer"
+        format: "int64"
+      err:
+        type: "object"
+        $ref: '#/definitions/TransactionError'
+      memo:
+        type: "string"
+      blockTime:
+        type: "integer"
+        format: "int64"
+  GetSignatureStatusRequest:
+    type: "object"
+    properties:
+      searchTransactionHistory:
+        type: "boolean"
+  SignatureStatus:
+    type: "object"
+    properties:
+      slot:
+        type: "integer"
+        format: "int64"
+      confirmations:
+        type: "integer"
+        format: "int64"
+      err:
+        type: "object"
+        $ref: '#/definitions/TransactionError'
+      confirmationStatus:
+        type: "string"
+        enum: [processed,confirmed,finalized]
+  StakeActivation:
+    type: "object"
+    properties:
+      state:
+        type: "string"
+        enum: [active,inactive,activating,deactivating]
+      active:
+        type: "integer"
+        format: "int64"
+      inactive:
+        type: "integer"
+        format: "int64"
+  Supply:
+    type: "object"
+    properties:
+      total:
+        type: "integer"
+        format: "int64"
+      circulating:
+        type: "integer"
+        format: "int64"
+      nonCirculating:
+        type: "integer"
+        format: "int64"
+      nonCirculatingAccounts:
+        type: "array"
+        items:
+          type: "string"
+  GetTokenAccountsRequest:
+    type: "object"
+    properties:
+      mint:
+        type: "string"
+      programId:
+        type: "string"
+  Version:
+    type: "object"
+    properties:
+      solana-core: 
+        type: "string"
+      feature-set:
+        type: "string"
+  VoteAccount:
+    type: "object"
+    properties:
+      votePubkey:
+        type: "string"
+      nodePubkey:
+        type: "string"
+      activatedStake:
+        type: "integer"
+        format: "int64"
+      epochVoteAccount:
+        type: "boolean"
+      commission:
+        type: "number"
+      lastVote:
+        type: "integer"
+        format: "int64"
+      epochCredits:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "integer"
+  SendTransactionRequest:
+    type: "object"
+    properties:
+      skipPreflight:
+        type: "boolean"
+      preflightCommitment:
+        type: "object"
+        $ref: '#/definitions/Commitment'
+      encoding:
+        type: "string"
+        enum: [base58,base64]
+        default: "base64"
+  SimulateTransactionRequest:
+    type: "object"
+    properties:
+      sigVerify:
+        type: "boolean"
+        default: "false"
+      commitment:
+        type: "string"
+        $ref: '#/definitions/Commitment'
+      encoding:
+        type: "string"
+        enum: [base64,base58]
+        default: "base58"
+      replaceRecentBlockhash:
+        type: "boolean"
+      accounts:
+        type: "object"
+        properties:
+          encoding:
+            type: "string"
+          addresses:
+            type: "array"
+            items:
+              type: "string"
+  SimulatedTransaction:
+    type: "object"
+    properties:
+      err:
+        type: "object"
+        $ref: '#/definitions/TransactionError'
+      logs:
+        type: "array"
+        items:
+          type: "string"
+      accounts:
+        type: "array"
+        items:
+          type: "object"
+          $ref: '#/definitions/AccountInfo'  
+externalDocs:
+  description: "Find out more about Solana JSONRPC API"
+  url: "https://docs.solana.com/developing/clients/jsonrpc-api"
